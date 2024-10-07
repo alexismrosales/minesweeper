@@ -3,11 +3,12 @@ package socket
 import "server/game"
 
 type Board struct {
-	X, Y       int      // Coordinates of the player last turn
-	H, W       int      // Size of height and weight of the matrix
-	Values     [][]rune // Matrix of values
-	GameValues [][]rune
-	Status     int
+	X, Y             int      // Coordinates of the player last turn
+	H, W             int      // Size of height and weight of the matrix
+	Values           [][]rune // Matrix of values
+	GameValues       [][]rune
+	Status           int
+	MinesCoordinates map[[2]int]struct{}
 }
 
 func (b *Board) GetValues() *[][]rune {
@@ -31,16 +32,21 @@ func (b *Board) GetStatus() int {
 	return b.Status
 }
 
+func (b *Board) GetMinesCoordinates() map[[2]int]struct{} {
+	return b.MinesCoordinates
+}
+
 func getBoardType(board *game.Board) *Board {
 	h, w := board.GetDimensions()
 	x, y := board.GetCoordinates()
 	return &Board{
-		H:          h,
-		W:          w,
-		X:          x,
-		Y:          y,
-		Values:     *board.GetValues(),
-		Status:     board.GetStatus(),
-		GameValues: *board.GetGameValues(),
+		H:                h,
+		W:                w,
+		X:                x,
+		Y:                y,
+		Values:           *board.GetValues(),
+		Status:           board.GetStatus(),
+		GameValues:       *board.GetGameValues(),
+		MinesCoordinates: board.GetMinesCoordinates(),
 	}
 }

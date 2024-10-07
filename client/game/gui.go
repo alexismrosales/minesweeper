@@ -12,9 +12,10 @@ var phrases = [...]string{
 	"Seleccione la acción a realizar:\n1)Buscar mina\n2)Colocar bandera",
 	"Ingrese la coordenada del eje vertical (Numero)",
 	"Ingrese la coordenada del eje horizontal (Letra)",
-	"Lo siento! Has perdido ...",
 	"Felicidades, has ganado!",
+	"Lo siento! Has perdido ...",
 	"XXX Coordenadas incorrectas, porfavor verifiquelas y vuelva a introducirlas",
+	"Se ha alcanzado el número máximo de banderas...",
 }
 
 var abecedary = [...]string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G"}
@@ -64,6 +65,7 @@ func initializeValues(h, w int) [][]rune {
 func (board *Board) loopBoard(conn net.Conn) {
 	coordenateX := 0
 	coordenateY := ""
+	flagCounter := 0
 	h, w := board.H, board.W
 	// gameCondition == 0 | User still in game;
 	// gameCondition == 1 | User wins;
@@ -78,12 +80,15 @@ func (board *Board) loopBoard(conn net.Conn) {
 			fmt.Println(phrases[6])
 			continue
 		}
-
-		// Save the selected value
-		board.Values[board.X][board.Y] = value
 		if value == '$' {
+			flagCounter++
+			board.Values[board.X][board.Y] = value
+			// Show selected value
+			board.printBoard()
 			continue
 		}
+		// Save the selected value
+		board.Values[board.X][board.Y] = value
 		// Show selected value
 		board.printBoard()
 
@@ -95,9 +100,11 @@ func (board *Board) loopBoard(conn net.Conn) {
 
 		// Board modified by the server
 		board = getBoardType(boardUpdated)
-
-		printStatus(board.Status)
 	}
+
+	board.printBoard()
+	fmt.Println(board.Status)
+	printStatus(board.Status)
 }
 
 func printStatus(status int) {

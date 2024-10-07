@@ -1,11 +1,12 @@
 package connection
 
 type Board struct {
-	X, Y       int      // Coordinates of the player last turn
-	H, W       int      // Size of height and weight of the matrix
-	Values     [][]rune // Matrix of values
-	Status     int
-	GameValues [][]rune
+	X, Y             int      // Coordinates of the player last turn
+	H, W             int      // Size of height and weight of the matrix
+	Values           [][]rune // Matrix of values
+	Status           int
+	GameValues       [][]rune
+	MinesCoordinates map[[2]int]struct{}
 }
 
 type BoardProvider interface {
@@ -14,6 +15,7 @@ type BoardProvider interface {
 	GetDimensions() (int, int)
 	GetStatus() int
 	GetGameValues() *[][]rune
+	GetMinesCoordinates() map[[2]int]struct{}
 }
 
 func (b *Board) GetValues() *[][]rune {
@@ -24,7 +26,6 @@ func (b *Board) GetGameValues() *[][]rune {
 	return &b.GameValues
 }
 
-// Métodos adicionales para obtener coordenadas y dimensiones
 func (b *Board) GetCoordinates() (int, int) {
 	return b.X, b.Y
 }
@@ -37,16 +38,21 @@ func (b *Board) GetStatus() int {
 	return b.Status
 }
 
+func (b *Board) GetMinesCoordinates() map[[2]int]struct{} {
+	return b.MinesCoordinates
+}
+
 func getBoardType(board BoardProvider) *Board {
 	h, w := board.GetDimensions()
 	x, y := board.GetCoordinates()
 	return &Board{
-		H:          h,
-		W:          w,
-		X:          x,
-		Y:          y,
-		Values:     *board.GetValues(),
-		Status:     board.GetStatus(),
-		GameValues: *board.GetGameValues(),
+		H:                h,
+		W:                w,
+		X:                x,
+		Y:                y,
+		Values:           *board.GetValues(),
+		Status:           board.GetStatus(),
+		GameValues:       *board.GetGameValues(),
+		MinesCoordinates: board.GetMinesCoordinates(),
 	}
 }

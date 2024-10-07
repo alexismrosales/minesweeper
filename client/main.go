@@ -3,11 +3,17 @@ package main
 import (
 	"client/connection"
 	"client/game"
+	"fmt"
 )
 
 func main() {
+	var direction, port string
+	fmt.Println("Escriba la dirección de la que desea conectarse: ")
+	fmt.Scanln(&direction)
+	fmt.Println("Escriba el puerto al que desee conectarse:")
+	fmt.Scanln(&port)
 	// Start connection
-	conn := connection.ConnectToServer("localhost", "8080")
+	conn := connection.ConnectToServer(direction, port)
 	// Close connection at the end of function
 	defer conn.Close()
 

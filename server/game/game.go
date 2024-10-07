@@ -12,19 +12,21 @@ func ModifyBoard(b BoardProvider) *Board {
 	}
 	// First time
 	h, w := userBoard.H, userBoard.W
+	mines := getTotalMines(userBoard)
 	if len(userBoard.GameValues) == 0 {
-		mines := getTotalMines(userBoard)
 		userBoard.GameValues = initializeValues(h, w)
-		generateBoard(h, w, mines, userBoard.GameValues)
+		userBoard.MinesCoordinates = generateBoard(h, w, mines, userBoard.GameValues)
 	}
 	printBoard(h, w, userBoard.GameValues)
 	fmt.Println("-----\n")
-	userBoard.Status = compareBoards(userBoard.X, userBoard.Y, userBoard.Values, userBoard.GameValues)
-	playerWins(userBoard.Values, userBoard.GameValues)
+	userBoard.Status = compareBoards(userBoard.X, userBoard.Y, userBoard.Values, userBoard.GameValues, userBoard.MinesCoordinates)
+	if playerWins(mines, h, w, userBoard.Values) {
+		userBoard.Status = 1
+	}
 	return userBoard
 }
 
-func compareBoards(userCoordinateX, userCoordinateY int, userValues [][]rune, boardValues [][]rune) int {
+func compareBoards(userCoordinateX, userCoordinateY int, userValues [][]rune, boardValues [][]rune, minesPosition map[[2]int]struct{}) int {
 	directions := [4][2]int{
 		{-1, 0}, // left
 		{1, 0},  // right
@@ -42,6 +44,8 @@ func compareBoards(userCoordinateX, userCoordinateY int, userValues [][]rune, bo
 	if boardValues[userCoordinateX][userCoordinateY] == '#' {
 		// Save the mine symbol on the user board
 		userValues[userCoordinateX][userCoordinateX] = '#'
+		// Reveal all mines
+		generateMines(minesPosition, userValues)
 		return 2
 	}
 	// Second case
@@ -92,8 +96,7 @@ func initializeValues(h, w int) [][]rune {
 	return values
 }
 
-func generateBoard(h, w, totalMines int, values [][]rune) {
-
+func generateBoard(h, w, totalMines int, values [][]rune) map[[2]int]struct{} {
 	// Map of values with randomCoordinates
 	minesPosition := make(map[[2]int]struct{})
 	for i := 0; i < totalMines; i++ {
@@ -111,6 +114,7 @@ func generateBoard(h, w, totalMines int, values [][]rune) {
 	}
 	generateNumbers(h, w, minesPosition, values)
 	generateMines(minesPosition, values)
+	return minesPosition
 }
 
 func generateNumbers(h, w int, minesPosition map[[2]int]struct{}, values [][]rune) {
@@ -147,6 +151,7 @@ func generateNumbers(h, w int, minesPosition map[[2]int]struct{}, values [][]run
 }
 
 func generateMines(minesPosition map[[2]int]struct{}, values [][]rune) {
+	fmt.Println(minesPosition)
 	for minePosition := range minesPosition {
 		x, y := minePosition[0], minePosition[1]
 		values[x][y] = '#'
@@ -174,13 +179,18 @@ func printBoard(h, w int, values [][]rune) {
 	}
 }
 
-func playerWins(userValues [][]rune, boardValues [][]rune) bool {
-	for i := 0; i < len(userValues); i++ {
-		for j := 0; j < len(userValues[i]); j++ {
-			if userValues[i][j] != boardValues[i][j] && userValues[i][j] != '-' {
-				return false
+func playerWins(mines, h, w int, userValues [][]rune) bool {
+	counter := 0
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			if userValues[i][j] == '-' {
+				counter++
 			}
 		}
 	}
-	return true
+	fmt.Println(counter, mines)
+	if counter == mines {
+		return true
+	}
+	return false
 }
