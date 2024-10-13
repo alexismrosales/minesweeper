@@ -33,11 +33,11 @@ func RecieveBoard(conn net.Conn) *Board {
 	var board Board
 	// Create a new decoder to deserialize the object
 	decoder := gob.NewDecoder(conn)
-	// Decoding the and save the objetct
+	// Decoding the and save the object
 	err := decoder.Decode(&board)
 
 	if err != nil {
-		log.Panic("Error reciviendo el objeto: ", err)
+		log.Panic("Error recibiendo el objeto: ", err)
 	}
 	return &board
 }

@@ -3,10 +3,10 @@ package game
 import "client/connection"
 
 type Board struct {
-	X, Y             int      // Coordinates of the player last turn
-	H, W             int      // Size of height and weight of the matrix
-	Values           [][]rune // Matrix of values
+	X, Y             int
+	H, W             int
 	Status           int
+	Values           [][]rune
 	GameValues       [][]rune
 	MinesCoordinates map[[2]int]struct{}
 }
@@ -19,7 +19,6 @@ func (b *Board) GetGameValues() *[][]rune {
 	return &b.GameValues
 }
 
-// Métodos adicionales para obtener coordenadas y dimensiones
 func (b *Board) GetCoordinates() (int, int) {
 	return b.X, b.Y
 }
